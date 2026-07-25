@@ -54,7 +54,7 @@ result tables.
 ### Standard install (Linux / macOS / Windows)
 
 ```bash
-git clone https://github.com/yourname/gitmename.git
+git clone https://github.com/ru-3/GitMeName.git
 cd gitmename
 python3 -m venv .venv
 source .venv/bin/activate      # Windows: .venv\Scripts\activate

@@ -1,0 +1,149 @@
+# GitMeName configuration
+# Copy this file to config.yaml and fill in what you need.
+# Secrets can also be supplied via environment variables instead
+# (GITHUB_TOKEN, TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET) — env vars
+# always take priority over this file.
+
+app:
+  name: "GitMeName"
+  version: "2.0.0"
+
+network:
+  timeout_seconds: 10
+  max_retries: 3
+  retry_backoff_seconds: 1.5
+  max_concurrent_requests: 25
+  user_agent: "GitMeName/2.0.0 (+https://github.com/)"
+
+logging:
+  level: INFO
+  file: logs/gitmename.log
+  max_bytes: 1000000
+  backup_count: 3
+
+output:
+  directory: output
+  save_available: true
+
+auth:
+  # GitHub Personal Access Token (no special scopes needed for read-only
+  # username lookups; a token just raises your rate limit from 60 to
+  # 5000 requests/hour).
+  github_token: ""
+
+  # Twitch requires an app access token (Client Credentials flow).
+  # Create an app at https://dev.twitch.tv/console/apps
+  twitch_client_id: ""
+  twitch_client_secret: ""
+
+# ---------------------------------------------------------------------------
+# URL-fallback platform detection rules.
+# Every platform below has no official username-availability API, so
+# GitMeName requests the public profile URL and infers availability from
+# the HTTP status code, the final redirected URL, and page content.
+#
+# Fields (all optional — omit to use the built-in defaults):
+#   profile_url        URL template; {username} is substituted in.
+#   not_found_status   status codes that mean AVAILABLE (e.g. 404)
+#   found_status       status codes that mean TAKEN (e.g. 200, 301, 302)
+#   ambiguous_status   status codes that mean UNKNOWN (403, 429, rate-limited/protected)
+#   not_found_phrases  lower-cased substrings in page content that mean
+#                      AVAILABLE even on a 200 (many sites render a
+#                      client-side "not found" page with a 200 status)
+#   headers            extra request headers for this platform
+#   timeout            per-platform request timeout override (seconds)
+# ---------------------------------------------------------------------------
+platforms:
+  tiktok:
+    profile_url: "https://www.tiktok.com/@{username}"
+    not_found_status: [404]
+    found_status: [200]
+    ambiguous_status: [403, 429, 503]
+    not_found_phrases:
+      - "couldn't find this account"
+      - "user not found"
+      - "page not available"
+    timeout: 12
+
+  instagram:
+    profile_url: "https://www.instagram.com/{username}/"
+    not_found_status: [404]
+    found_status: [200]
+    ambiguous_status: [403, 429, 401]
+    not_found_phrases:
+      - "sorry, this page isn't available"
+      - "page isn't available"
+      - "the link you followed may be broken"
+    timeout: 12
+
+  twitter:
+    profile_url: "https://x.com/{username}"
+    not_found_status: [404]
+    found_status: [200]
+    ambiguous_status: [403, 429]
+    not_found_phrases:
+      - "this account doesn't exist"
+      - "page doesn't exist"
+    timeout: 12
+
+  telegram:
+    profile_url: "https://t.me/{username}"
+    not_found_status: [404]
+    found_status: [200]
+    ambiguous_status: [429]
+    not_found_phrases:
+      - "if you have telegram, you can contact"
+      - "we couldn't find this"
+    timeout: 10
+
+  snapchat:
+    profile_url: "https://www.snapchat.com/add/{username}"
+    not_found_status: [404]
+    found_status: [200]
+    ambiguous_status: [403, 429]
+    not_found_phrases:
+      - "sorry, we could not find"
+      - "content not found"
+      - "page not found"
+    timeout: 10
+
+  pinterest:
+    profile_url: "https://www.pinterest.com/{username}/"
+    not_found_status: [404]
+    found_status: [200]
+    ambiguous_status: [403, 429]
+    not_found_phrases:
+      - "page not found"
+      - "sorry! we couldn't find that page"
+      - "user not found"
+    timeout: 10
+
+  kick:
+    profile_url: "https://kick.com/{username}"
+    not_found_status: [404]
+    found_status: [200]
+    ambiguous_status: [403, 429]
+    not_found_phrases:
+      - "not found"
+      - "page could not be found"
+    timeout: 10
+
+  steam:
+    profile_url: "https://steamcommunity.com/id/{username}"
+    not_found_status: [404]
+    found_status: [200]
+    ambiguous_status: [429]
+    not_found_phrases:
+      - "the specified profile could not be found"
+      - "no user found"
+    timeout: 10
+
+  roblox:
+    profile_url: "https://www.roblox.com/users/profile?username={username}"
+    not_found_status: [404]
+    found_status: [200]
+    ambiguous_status: [429]
+    not_found_phrases:
+      - "page cannot be found"
+      - "user not found"
+    timeout: 10
